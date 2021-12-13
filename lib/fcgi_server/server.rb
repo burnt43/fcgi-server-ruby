@@ -20,6 +20,7 @@ module FcgiServer
             request = CgiRequest.new(client)
             Logger.debug(request)
 
+            # response = CgiResponse.new(request)
             raw_cgi_result = request.process!
 
             response = StringIO.new.tap do |s|
