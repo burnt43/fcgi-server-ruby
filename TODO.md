@@ -15,3 +15,6 @@ Use the CgiResponse class to be able to take the response from the xymon scripts
 
 ### Config File
 Write some quick documentation on the config file.
+
+### Readme
+Explain how to set this up. Show nginx conf and everything.
