@@ -1,5 +1,10 @@
 #!/bin/bash
 
+function echo_error {
+  local msg="$1"
+  echo -e "[\033[0;31mERROR\033[0;0m] - $msg"
+}
+
 script_path=$(dirname $0)
 [[ "${script_path:0:1}" != "/" && "${script_path:0:1}" != "." ]] && script_path="./${script_path}"
 
@@ -7,14 +12,18 @@ base_path="${script_path}/.."
 
 [[ "$1" == "--test" ]] && test_flag=1
 
-bundle_bin=$(which bundle)
-rake_bin=$(which rake)
-ruby_bin=$(which ruby)
+compiled_rubies_path=/usr/local/ruby
+bundle_bin=$(which bundle 2>/dev/null)
+rake_bin=$(which rake 2>/dev/null)
+ruby_bin=$(which ruby 2>/dev/null)
 test_task_name="fcgi_server:test:run"
 
+[[ -z "$bundle_bin" ]] && bundle_bin=$(find $compiled_rubies_path/**/bin -type f -executable -name 'bundle' | head -1)
+[[ -z "$rake_bin" ]] && rake_bin=$(find $compiled_rubies_path/**/bin -type f -executable -name 'rake' | head -1)
+[[ -z "$ruby_bin" ]] && ruby_bin=$(find $compiled_rubies_path/**/bin -type f -executable -name 'ruby' | head -1)
+
 if [[ "$test_flag" == "1" ]]; then
-  $bundle_bin exec $rake_bin $test_task_name
-  :
+  cd $base_path && $bundle_bin exec $rake_bin $test_task_name
 else
-  $bundle_bin exec $ruby_bin -I${base_path}/lib ${base_path}/fcgi-server.rb "$@"
+  cd $base_path && $bundle_bin exec $ruby_bin -I${base_path}/lib ${base_path}/fcgi-server.rb "$@"
 fi

@@ -1,0 +1,14 @@
+[Unit]
+Description=FCGI Server
+Wants=network.target
+After=network.target
+
+[Service]
+Type=simple
+User=jcarson
+Group=jcarson
+
+ExecStart=/home/jcarson/git_clones/fcgi-server-ruby/script/fcgi-server --config-file=/home/jcarson/.jcarson-config/fcgi-server.yaml
+
+[Install]
+WantedBy=multi-user.target
