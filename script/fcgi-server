@@ -1,0 +1,20 @@
+#!/bin/bash
+
+while getopts "t" opt; do
+  case "$opt" in
+    t)
+      test_flag=1
+      ;;
+  esac
+done
+
+bundle_bin=$(which bundle)
+rake_bin=$(which rake)
+test_task_name="fcgi_server:test:run"
+
+if [[ "$test_flag" == "1" ]]; then
+  $bundle_bin exec $rake_bin $test_task_name
+  :
+else
+  :
+fi

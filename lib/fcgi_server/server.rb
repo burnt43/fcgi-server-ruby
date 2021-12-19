@@ -35,7 +35,7 @@ module FcgiServer
             client.puts(response)
             Logger.info("response sent to client")
             Logger.debug(response[RESPONSE_HEADER.size..-1])
-          rescue => e
+          rescue
             Logger.error("an error occurred")
           ensure
             client.close

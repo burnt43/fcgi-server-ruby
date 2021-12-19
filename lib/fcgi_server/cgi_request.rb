@@ -33,7 +33,7 @@ module FcgiServer
     def env_string
       @cgi_params.map do |key, value|
         "#{key}=\"#{value}\""
-      end.join(' ')
+      end.join(' ').encode('UTF-8')
     end
 
     # Use the configured aliases to take the URI and convert it to a location

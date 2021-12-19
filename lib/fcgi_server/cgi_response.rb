@@ -1,7 +1,7 @@
 module FcgiServer
   class CgiResponse
-    def initialize(raw_cgi_script_string)
-      @raw_cgi_script_string = raw_cgi_script_string
+    def initialize(cgi_request)
+      @cgi_request = cgi_request
     end
   end
 end
