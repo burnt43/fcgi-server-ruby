@@ -16,6 +16,16 @@ module FcgiServer
       end
 
       def test_foobar
+        FcgiServer::Config.instance_eval {
+          @config = {'server' => {
+            'aliases' => {
+              '/xymon-cgi' => './test/assets'
+              
+            }
+          }}
+        }
+
+        @response_01.process!
       end
     end
   end

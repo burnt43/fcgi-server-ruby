@@ -21,7 +21,7 @@ module FcgiServer
             Logger.debug(request)
 
             # response = CgiResponse.new(request)
-            raw_cgi_result = request.process!
+            raw_cgi_result = request.process!.tap {|x| Logger.debug x}
 
             response = StringIO.new.tap do |s|
               s.print FcgiServer::RESPONSE_HEADER

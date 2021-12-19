@@ -1,20 +1,20 @@
 #!/bin/bash
 
-while getopts "t" opt; do
-  case "$opt" in
-    t)
-      test_flag=1
-      ;;
-  esac
-done
+script_path=$(dirname $0)
+[[ "${script_path:0:1}" != "/" && "${script_path:0:1}" != "." ]] && script_path="./${script_path}"
+
+base_path="${script_path}/.."
+
+[[ "$1" == "--test" ]] && test_flag=1
 
 bundle_bin=$(which bundle)
 rake_bin=$(which rake)
+ruby_bin=$(which ruby)
 test_task_name="fcgi_server:test:run"
 
 if [[ "$test_flag" == "1" ]]; then
   $bundle_bin exec $rake_bin $test_task_name
   :
 else
-  :
+  $bundle_bin exec $ruby_bin -I${base_path}/lib ${base_path}/fcgi-server.rb "$@"
 fi
