@@ -4,6 +4,15 @@ module FcgiServer
   module Testing
     class CgiResponseTest < FcgiServer::Testing::Test
       def setup
+        FcgiServer::Config.instance_eval {
+          @config = {'server' => {
+            'aliases' => {
+              '/xymon-cgi' => './test/assets'
+              
+            }
+          }}
+        }
+
         @fake_client_01 = BasicObject.new
         class << @fake_client_01
           def gets
@@ -15,17 +24,16 @@ module FcgiServer
         @response_01 = FcgiServer::CgiResponse.new(@request_01)
       end
 
-      def test_foobar
-        FcgiServer::Config.instance_eval {
-          @config = {'server' => {
-            'aliases' => {
-              '/xymon-cgi' => './test/assets'
-              
-            }
-          }}
-        }
+      def test_headers
+        assert_equal("60", @response_01.headers['Refresh'])
+        assert_equal("script-src 'self'; connect-src 'self'; form-action 'self'; sandbox allow-forms allow-same-origin;", @response_01.headers['Content-Security-Policy'])
+        assert_equal("script-src 'self'; connect-src 'self'; form-action 'self'; sandbox allow-forms allow-same-origin;", @response_01.headers['X-Content-Security-Policy'])
+        assert_equal("script-src 'self'; connect-src 'self'; form-action 'self'; sandbox allow-forms allow-same-origin;", @response_01.headers['X-Webkit-CSP'])
+        assert_equal("text/html", @response_01.headers['Content-type'])
+      end
 
-        @response_01.process!
+      def test_body
+        assert(@response_01.body.start_with?("<!DOCTYPE HTML PUBLIC"))
       end
     end
   end

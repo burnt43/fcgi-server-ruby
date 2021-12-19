@@ -1,3 +1,2 @@
 module FcgiServer
-  RESPONSE_HEADER = "\x01\x06\x00\x01\xFF\x00\x00\x00"
 end

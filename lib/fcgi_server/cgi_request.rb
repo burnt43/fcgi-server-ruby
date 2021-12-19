@@ -18,12 +18,15 @@ module FcgiServer
     def inspect
       "<CgiRequest #{@cgi_params.to_s}>"
     end
+    alias_method :to_s, :inspect
 
     # Call the CGI script and get its output.
     def process!
       Logger.info("call cgi script: #{actual_cgi_script_name}")
 
-      `/usr/bin/env -i #{env_string} #{actual_cgi_script_name}`
+      # Run the actual CGI script in a modified environment that matches the
+      # given CGI variables. Only execute this script if it exists.
+      `[[ -e #{actual_cgi_script_name} ]] && /usr/bin/env -i #{env_string} #{actual_cgi_script_name}`
     end
 
     private

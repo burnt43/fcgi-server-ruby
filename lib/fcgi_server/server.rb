@@ -3,8 +3,11 @@ module FcgiServer
     def initialize(options={})
       @options = options
 
+      # Load the config file.
+      # REVIEW: Should this really be done here and not sometime before?
       FcgiServer::Config.load!(@options[:'config-file'])
 
+      # Create a TCP Server.
       Logger.info "starting tcp server #{Config.server_host}:#{Config.server_port}"
       @tcp_server = TCPServer.new(Config.server_host, Config.server_port)
     end
@@ -13,31 +16,31 @@ module FcgiServer
       Logger.info "listening for incoming client connections"
 
       loop do
+        # Accept new client connections and give them their own thread.
         Thread.start(@tcp_server.accept) do |client|
           Logger.info "client connected"
           
           begin
+            # read request
             request = CgiRequest.new(client)
-            Logger.debug(request)
+            Logger.debug("request received: #{request.to_s}")
 
-            # response = CgiResponse.new(request)
-            raw_cgi_result = request.process!.tap {|x| Logger.debug x}
+            # create response
+            response = CgiResponse.new(request)
+            Logger.debug("response: #{response.raw_output(with_cgi_header: false)}")
 
-            response = StringIO.new.tap do |s|
-              s.print FcgiServer::RESPONSE_HEADER
-              s.print "Refresh: 60\r\n"
-              s.print "Content-type: text/html; charset: UTF-8\r\n"
-              s.print "\r\n"
-              # s.print "<html><body><h1>#{Time.now.to_i}</h1></body></html>"
-              s.print raw_cgi_result
-            end.string
-
-            client.puts(response)
+            # send response over socket
+            client.puts(response.raw_output)
             Logger.info("response sent to client")
-            Logger.debug(response[RESPONSE_HEADER.size..-1])
-          rescue
-            Logger.error("an error occurred")
+          rescue => e
+            # handle errors
+            Logger.error(StringIO.new.tap {|s|
+              s.puts e.class.name
+              s.puts e.message
+              e.backtrace.each {|l| s.puts l}
+            }.string)
           ensure
+            # close client connection
             client.close
           end
 
